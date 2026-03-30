@@ -66,11 +66,18 @@ const multer = require("multer");
 
 const upload = multer({ storage: multer.memoryStorage() });
 
-// Get all reports
 router.post("/reports", async function (req, res) {
   try {
     const { city } = req.body;
-    const query = city ? { city: city } : {};
+
+    const fiveDaysAgo = new Date();
+    fiveDaysAgo.setDate(fiveDaysAgo.getDate() - 5);
+
+    const query = {
+      createdAt: { $gte: fiveDaysAgo },
+      ...(city ? { city } : {}),
+    };
+
     const reports = await Report.find(query);
 
     if (!reports || reports.length === 0) {
@@ -80,7 +87,6 @@ router.post("/reports", async function (req, res) {
     const result = await Promise.all(
       reports.map(async (row) => {
         const images = await Image.find({ reportId: row._id });
-
         return {
           id: row._id,
           coor_lat: row.coor_lat,
@@ -88,8 +94,9 @@ router.post("/reports", async function (req, res) {
           description: row.description,
           brgy: row.brgy,
           city: row.city,
+          urgency: row.urgency,
           user: row.user,
-          // just send image IDs, Flutter will build the URL
+          createdAt: row.createdAt,
           imageIds: images.map((img) => img._id.toString()),
         };
       }),
@@ -129,7 +136,8 @@ router.post("/reports", async function (req, res) {
 // Upload report with multiple images
 router.put("/upload", upload.array("images", 5), async function (req, res) {
   try {
-    const { coor_lat, coor_lon, description, brgy, city, FK_user } = req.body;
+    const { coor_lat, coor_lon, description, brgy, city, urgency, FK_user } =
+      req.body;
 
     // 1. Save report
     const newReport = new Report({
@@ -138,6 +146,7 @@ router.put("/upload", upload.array("images", 5), async function (req, res) {
       description,
       brgy,
       city,
+      urgency,
       user: FK_user,
     });
 
