@@ -169,6 +169,7 @@ router.put("/upload", upload.array("images", 5), async function (req, res) {
     });
   } catch (error) {
     res.status(500).json({ issuccess: 0, error: error.message });
+    console.error("Error in /upload:", error);
   }
 });
 

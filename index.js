@@ -19,13 +19,13 @@ app.use(cors());
 // Routes
 app.use("/mapping", require("./routes/mapping"));
 
-// // Start server
-// server.listen(app.get("port") || 8000, () => {
-//   console.log("Server on port", app.get("port") || 8000);
-// });
-
-const PORT = process.env.PORT || 3000;
-
-server.listen(PORT, () => {
-  console.log("Server running on port", PORT);
+// Start server
+server.listen(app.get("port") || 8000, () => {
+  console.log("Server on port", app.get("port") || 8000);
 });
+
+// const PORT = process.env.PORT || 3000;
+
+// server.listen(PORT, () => {
+//   console.log("Server running on port", PORT);
+// });
